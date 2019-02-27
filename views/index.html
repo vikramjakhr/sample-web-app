@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Sample App</title>
+    <script
+            src="https://code.jquery.com/jquery-3.3.1.min.js"
+            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+            crossorigin="anonymous"></script>
+</head>
+<body id="data">
+
+</body>
+
+<script type="text/javascript">
+    setInterval(function () {
+        $.ajax({
+            url: "/api/data",
+            type: 'GET',
+            error: function () {
+                console.log("error")
+            },
+            success: function (data, status) {
+                if (data.timeout !== "" && data.timeout !== "0" ) {
+                    sleep(data.timeout);
+                    var html = "<div style='color: red'>Application lagging by " + data.timeout + " seconds.</div>";
+                    $("#data").html(html);
+                } else {
+                    $("#data").html("<div style='color: green'>Application is working fine.</div>");
+                }
+            }
+        });
+    }, 500);
+
+    function sleep(seconds){
+        var waitUntil = new Date().getTime() + seconds*1000;
+        while(new Date().getTime() < waitUntil) true;
+    }
+</script>
+
+</html>
