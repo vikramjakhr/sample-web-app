@@ -4,7 +4,7 @@
 ./sample-web-app
 (defualt port: 6686)
 ``
-######OR
+##### OR
 
 ``
 ./sample-web-app --port=7876
