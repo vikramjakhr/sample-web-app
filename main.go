@@ -5,15 +5,15 @@ import (
 	"strings"
 	"strconv"
 	"fmt"
+	"time"
+	"flag"
 )
 
 var timeoutDelay int = 0
+var statusCode string = "200"
+var port = flag.String("port", "6686", "port on which application will run")
 
 type MainController struct {
-	beego.Controller
-}
-
-type TestController struct {
 	beego.Controller
 }
 
@@ -21,45 +21,33 @@ type DataController struct {
 	beego.Controller
 }
 
-type PostDataController struct {
-	beego.Controller
-}
-
 func init() {
 	beego.Router("/", &MainController{})
-	beego.Router("/test", &TestController{})
-	beego.Router("/api/data", &DataController{})
-	beego.Router("/api/setter", &PostDataController{})
+	beego.Router("/api/setter", &DataController{})
 }
 
 func (c *MainController) Get() {
-	c.TplName = "index.html"
+	time.Sleep(time.Duration(timeoutDelay) * time.Second)
+	c.Abort(statusCode)
 }
 
-func (c *TestController) Get() {
-	c.TplName = "test.html"
-}
-
-func (c *DataController) Get() {
-	c.Data["json"] = map[string]string{"timeout": strconv.Itoa(timeoutDelay)}
-	c.ServeJSON();
-}
-
-func (this *PostDataController) Post() {
+func (this *DataController) Get() {
 	timeout := strings.Trim(this.GetString("timeout"), "")
-	fmt.Println(timeout)
-	if timeout == "" {
-		this.Data["json"] = map[string]string{"msg": "Invalid timeout value."}
-	} else {
+	sCode := strings.Trim(this.GetString("statusCode"), "")
+	fmt.Println(timeout, statusCode)
+	if timeout != "" {
 		tout, err := strconv.Atoi(timeout)
 		if err == nil {
 			timeoutDelay = tout
 		}
-		this.Data["json"] = map[string]string{"msg": "Timeout updated to " + timeout}
+	}
+	if sCode != "" {
+		statusCode = sCode
 	}
 	this.ServeJSON()
 }
 
 func main() {
-	beego.Run()
+	flag.Parse()
+	beego.Run(":" + *port)
 }
